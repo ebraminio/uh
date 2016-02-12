@@ -11,10 +11,10 @@ from flask import Flask, request, Response
 app = Flask(__name__)
 
 
-@app.route('/uploadhelper-ir/<path:url>')
+@app.route('/uploadhelper-ir/tasnimgallery/<path:url>')
 def tasnimgallery(url):
     try:
-        if url.find('http://tasnimnews.com/') != 0:
+        if re.match(r'^http://(www\.)?tasnimnews\.com/', url) is None:
             raise Exception('Not supported link')
 
         soup = BeautifulSoup(requests.get(url).text, 'html.parser')
@@ -46,7 +46,9 @@ def tasnimgallery(url):
 
 @app.route('/uploadhelper-ir/tasnimcrop/<path:url>')
 def tasnimcrop(url):
-    response = Response('', content_type='application/json;charset=utf8')
+    if re.match(r'^http://newsmedia\.tasnimnews\.com/', url) is None:
+        raise Exception('Not supported link')
+    response = Response(requests.get(url).content, content_type='image/jpeg')
     response.headers['Access-Control-Allow-Origin'] = "*"
     return response
 
