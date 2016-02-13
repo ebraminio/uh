@@ -11,6 +11,7 @@ from PIL import Image
 from functools import wraps
 import base64
 import io
+from flask.ext.compress import Compress
 
 
 def crossorigin(f):
@@ -58,6 +59,7 @@ def parsedate(date):
     return '%d-%d-%d' % greg + ' %s:%s' % (m.group(4), m.group(5))
 
 app = Flask(__name__)
+Compress(app)
 
 
 @app.route('/uploadhelper-ir/tasnimgallery/<path:url>')
