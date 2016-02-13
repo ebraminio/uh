@@ -7,6 +7,10 @@ import calverter
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask, request, Response
+from PIL import Image
+import base64
+import io
+
 
 app = Flask(__name__)
 
@@ -46,9 +50,22 @@ def tasnimgallery(url):
 
 @app.route('/uploadhelper-ir/tasnimcrop/<path:url>')
 def tasnimcrop(url):
+    format = request.args.get('format')
     if re.match(r'^http://newsmedia\.tasnimnews\.com/', url) is None:
         raise Exception('Not supported link')
-    response = Response(requests.get(url).content, content_type='image/jpeg')
+
+    img = Image.open(io.BytesIO(requests.get(url).content))
+    img2 = img.crop(
+        (0, 0, img.size[0], img.size[1] - int(img.size[0] / 800 * 24)))
+    img_io = io.BytesIO()
+    img2.save(img_io, 'JPEG')
+    img_io.seek(0)
+    if format == 'base64':
+        b64 = base64.b64encode(img_io)
+        response = Response(b64, content_type='text/plain')
+    else:
+        response = Response(img_io, content_type='image/jpeg')
+
     response.headers['Access-Control-Allow-Origin'] = "*"
     return response
 
@@ -57,18 +74,18 @@ if __name__ == '__main__':
 
 cal = calverter.Calverter()
 months = {
-  "فروردین": 1,
-  "اردیبهشت": 2,
-  "خرداد": 3,
-  "تیر": 4,
-  "مرداد": 5,
-  "شهریور": 6,
-  "مهر": 7,
-  "آبان": 8,
-  "آذر": 9,
-  "دی": 10,
-  "بهمن": 11,
-  "اسفند": 12
+    "فروردین": 1,
+    "اردیبهشت": 2,
+    "خرداد": 3,
+    "تیر": 4,
+    "مرداد": 5,
+    "شهریور": 6,
+    "مهر": 7,
+    "آبان": 8,
+    "آذر": 9,
+    "دی": 10,
+    "بهمن": 11,
+    "اسفند": 12
 }
 distance = ord('۰') - ord('0')
 
