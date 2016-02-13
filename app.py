@@ -101,11 +101,11 @@ def tasnimcrop(url):
     img_io = io.BytesIO()
     img2.save(img_io, 'JPEG')
     img_io.seek(0)
-    if format == 'base64':
+    if format == 'raw':
+        response = Response(img_io, content_type='image/jpeg')
+    else:
         b64 = base64.b64encode(img_io.read())
         response = Response(b64, content_type='text/plain')
-    else:
-        response = Response(img_io, content_type='image/jpeg')
 
     response.headers['Access-Control-Allow-Origin'] = "*"
     return response
