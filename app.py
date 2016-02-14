@@ -11,6 +11,7 @@ from PIL import Image
 from functools import wraps
 import base64
 import io
+from flask.ext.compress import Compress
 from inpaint import inpaint
 
 
@@ -59,6 +60,7 @@ def parsedate(date):
     return '%d-%d-%d' % greg + ' %s:%s' % (m.group(4), m.group(5))
 
 app = Flask(__name__)
+Compress(app)
 
 
 @app.route('/uploadhelper-ir/tasnimgallery/<path:url>')
@@ -80,6 +82,7 @@ def tasnimgallery(url):
         'time': parsedate(article.select_one('time').text.strip()),
         'lead': article.select_one('h3.lead').text.strip(),
         'images': list(images),
+        'service': 'Tasnim News',
         'url': url
     }
 
@@ -96,9 +99,7 @@ def tasnimcrop(url):
         raise Exception('Not supported link')
 
     img = Image.open(io.BytesIO(requests.get(url).content))
-    print(img.size[0])
     if img.size[0] == 800:
-        print('b')
         img = inpaint(img)
 
     img_cropped = img.crop(
@@ -106,11 +107,11 @@ def tasnimcrop(url):
     img_io = io.BytesIO()
     img_cropped.save(img_io, 'JPEG')
     img_io.seek(0)
-    if format == 'base64':
+    if format == 'raw':
+        response = Response(img_io, content_type='image/jpeg')
+    else:
         b64 = base64.b64encode(img_io.read())
         response = Response(b64, content_type='text/plain')
-    else:
-        response = Response(img_io, content_type='image/jpeg')
 
     response.headers['Access-Control-Allow-Origin'] = "*"
     return response
