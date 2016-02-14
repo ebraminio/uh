@@ -11,6 +11,7 @@ from PIL import Image
 from functools import wraps
 import base64
 import io
+from inpaint import inpaint
 
 
 def crossorigin(f):
@@ -95,10 +96,15 @@ def tasnimcrop(url):
         raise Exception('Not supported link')
 
     img = Image.open(io.BytesIO(requests.get(url).content))
-    img2 = img.crop(
+    print(img.size[0])
+    if img.size[0] == 800:
+        print('b')
+        img = inpaint(img)
+
+    img_cropped = img.crop(
         (0, 0, img.size[0], img.size[1] - int(img.size[0] / 800 * 24)))
     img_io = io.BytesIO()
-    img2.save(img_io, 'JPEG')
+    img_cropped.save(img_io, 'JPEG')
     img_io.seek(0)
     if format == 'base64':
         b64 = base64.b64encode(img_io.read())
