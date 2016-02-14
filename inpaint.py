@@ -14,20 +14,20 @@ def is_valid(c, max):
     else:
         return False
 
-def neighbor_pixels(x, y, img):
+def neighbor_pixels(x, y, img, width, height):
     "Find all valid neighboring pixels"
     neighbors = []
     if (is_valid(y+1, height) and img[x, y+1][3] == 0):
         neighbors.append([x, y+1])
     if (is_valid(y-1, height) and img[x, y-1][3] == 0):
         neighbors.append([x, y-1])
-    if (is_valid(x+1,width) and img[x+1, y][3] == 0):
+    if (is_valid(x+1, width) and img[x+1, y][3] == 0):
         neighbors.append([x+1, y])
-    if (is_valid(x-1,width) and img[x-1, y][3] == 0):
+    if (is_valid(x-1, width) and img[x-1, y][3] == 0):
         neighbors.append([x-1, y])
     return neighbors
 
-def extract_alpha(img):
+def extract_alpha(img, width, height):
     "Create a list of pixels [[x,y],...] for a given image where pixels are not null"
     alpha = []
     y = 0
@@ -56,11 +56,10 @@ def average_rgb(pixels, img):
         return (0, 0, 0)
 
 
-mask = Image.open("mask800.png")
-ma = mask.load()
-
 def inpaint(image):
-    global ma, width, height
+    # TODO: Ugly, this should be loaded just once
+    mask = Image.open("mask800.png")
+    ma = mask.load()
 
     image = image.convert("RGB")
     im = image.load()
@@ -75,16 +74,16 @@ def inpaint(image):
     tma = tmask.load()
 
 
-    alpha = extract_alpha(ma)
+    alpha = extract_alpha(ma, width, height)
 
     if len(alpha) != 0:
         while len(alpha) > 0:
             for p in alpha:
-                neighbors = neighbor_pixels(p[0], p[1], ma)
+                neighbors = neighbor_pixels(p[0], p[1], ma, width, height)
                 if len(neighbors) > 0:
                     im[p[0], p[1]] = average_rgb(neighbors, im)
                     tma[p[0], p[1]] = 0
             ma = tma
-            alpha = extract_alpha(ma)
+            alpha = extract_alpha(ma, width, height)
 
     return image

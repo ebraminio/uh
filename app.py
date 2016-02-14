@@ -102,10 +102,10 @@ def tasnimcrop(url):
     if img.size[0] == 800:
         img = inpaint(img)
 
-    img_cropped = img.crop(
+    img = img.crop(
         (0, 0, img.size[0], img.size[1] - int(img.size[0] / 800 * 24)))
     img_io = io.BytesIO()
-    img_cropped.save(img_io, 'JPEG')
+    img.save(img_io, 'JPEG')
     img_io.seek(0)
     if format == 'raw':
         response = Response(img_io, content_type='image/jpeg')
