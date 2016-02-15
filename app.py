@@ -63,10 +63,10 @@ app = Flask(__name__)
 Compress(app)
 
 
-@app.route('/uploadhelper-ir/tasnimgallery/<path:url>')
+@app.route('/uploadhelper-ir/gallery/<path:url>')
 @crossorigin
 @displayerror
-def tasnimgallery(url):
+def gallery(url):
     if re.match(r'^http://(www\.)?tasnimnews\.com/', url) is None:
         raise Exception('Not supported link')
 
@@ -90,10 +90,10 @@ def tasnimgallery(url):
         content_type='application/json;charset=utf8')
 
 
-@app.route('/uploadhelper-ir/tasnimcrop/<path:url>')
+@app.route('/uploadhelper-ir/crop/<path:url>')
 @crossorigin
 @displayerror
-def tasnimcrop(url):
+def crop(url):
     format = request.args.get('format')
     if re.match(r'^http://newsmedia\.tasnimnews\.com/', url) is None:
         raise Exception('Not supported link')
