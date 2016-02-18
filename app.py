@@ -128,5 +128,12 @@ def image(url):
                     content_type='text/plain')
 
 
+@app.route('/uploadhelper-ir/health')
+@crossorigin
+@displayerror
+def health():
+    return Response('{"health": true}', content_type='application/json')
+
+
 if __name__ == '__main__':
     app.run()
