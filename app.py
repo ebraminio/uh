@@ -87,7 +87,7 @@ def gallery(url):
     }
 
     return Response(json.dumps(result, indent=1, ensure_ascii=False),
-        content_type='application/json;charset=utf8')
+                    content_type='application/json;charset=utf8')
 
 
 @app.route('/uploadhelper-ir/crop/<path:url>')
@@ -108,13 +108,25 @@ def crop(url):
     img.save(img_io, 'JPEG')
     img_io.seek(0)
     if format == 'raw':
-        response = Response(img_io, content_type='image/jpeg')
+        return Response(img_io, content_type='image/jpeg')
     else:
-        b64 = base64.b64encode(img_io.read())
-        response = Response(b64, content_type='text/plain')
+        b64 = base64.b64encode(img_io.read()).decode()
+        return Response('data:image/jpeg;base64,' + b64,
+                        content_type='text/plain')
 
-    response.headers['Access-Control-Allow-Origin'] = "*"
-    return response
+
+@app.route('/uploadhelper-ir/image/<path:url>')
+@crossorigin
+@displayerror
+def image(url):
+    if re.match(r'https://upload\.wikimedia\.org/wikipedia/en/', url) is None:
+        raise Exception('Not supported link')
+
+    req = requests.get(url)
+    b64 = base64.b64encode(req.content).decode()
+    return Response('data:%s;base64,%s' % (req.headers['Content-Type'], b64),
+                    content_type='text/plain')
+
 
 if __name__ == '__main__':
     app.run()
