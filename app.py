@@ -115,12 +115,17 @@ def crop(url):
                         content_type='text/plain')
 
 
-@app.route('/uploadhelper-ir/image/<path:url>')
+@app.route('/uploadhelper-ir/enimage/<name>')
 @crossorigin
 @displayerror
-def image(url):
-    if re.match(r'https://upload\.wikimedia\.org/wikipedia/en/', url) is None:
-        raise Exception('Not supported link')
+def enimage(name):
+    url = requests.get('https://en.wikipedia.org/w/api.php', {
+        'action': 'query',
+        'titles': 'File:' + name,
+        'prop': 'imageinfo',
+        'iiprop': 'url',
+        'format': 'json'
+    }).json()['query']['pages'].popitem()[1]['imageinfo'][0]['url']
 
     req = requests.get(url)
     b64 = base64.b64encode(req.content).decode()
