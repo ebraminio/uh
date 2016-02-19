@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup
 from flask import Flask, request, Response
 from PIL import Image
 from functools import wraps
-import base64
 import io
 from flask.ext.compress import Compress
 from inpaint import inpaint
@@ -83,7 +82,6 @@ def gallery(url):
 @app.route('/uploadhelper-ir/crop/<path:url>')
 @crossorigin
 def crop(url):
-    format = request.args.get('format')
     if re.match(r'^http://newsmedia\.tasnimnews\.com/', url) is None:
         raise Exception('Not supported link')
 
@@ -96,28 +94,17 @@ def crop(url):
     img_io = io.BytesIO()
     img.save(img_io, 'JPEG')
     img_io.seek(0)
-    if format == 'raw':
-        return Response(img_io, content_type='image/jpeg')
-    else:
-        b64 = base64.b64encode(img_io.read()).decode()
-        return Response('data:image/jpeg;base64,' + b64,
-                        content_type='text/plain')
+    return Response(img_io, content_type='image/jpeg')
 
 
-@app.route('/uploadhelper-ir/enimage/<name>')
+@app.route('/uploadhelper-ir/image/<name>')
 @crossorigin
-def enimage(name):
-    url = requests.get('https://en.wikipedia.org/w/api.php', {
-        'action': 'query',
-        'titles': 'File:' + name,
-        'prop': 'imageinfo',
-        'iiprop': 'url',
-        'format': 'json'
-    }).json()['query']['pages'].popitem()[1]['imageinfo'][0]['url']
+def image(url):
+    if url.find('https://upload.wikimedia.org/wikipedia/en/') != 0:
+        raise Exception('Not supported link')
     req = requests.get(url)
-    b64 = base64.b64encode(req.content).decode()
-    return Response('data:%s;base64,%s' % (req.headers['Content-Type'], b64),
-                    content_type='text/plain')
+    return Response(req.content,
+                    content_type=req.headers['Content-Type'])
 
 
 @app.route('/uploadhelper-ir/health')
