@@ -49,7 +49,6 @@ def parsedate(date):
     return '%d-%d-%d' % greg + ' %s:%s' % (m.group(4), m.group(5))
 
 app = Flask(__name__)
-app.config['DEBUG'] = True
 Compress(app)
 
 
@@ -95,12 +94,6 @@ def crop(url):
     img.save(img_io, 'JPEG')
     img_io.seek(0)
     return Response(img_io, content_type='image/jpeg')
-
-
-@app.route('/uploadhelper-ir/health')
-@crossorigin
-def health():
-    return Response('{"health": true}', content_type='application/json')
 
 
 if __name__ == '__main__':
