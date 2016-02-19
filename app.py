@@ -97,7 +97,7 @@ def crop(url):
     return Response(img_io, content_type='image/jpeg')
 
 
-@app.route('/uploadhelper-ir/image/<name>')
+@app.route('/uploadhelper-ir/image/<path:url>')
 @crossorigin
 def image(url):
     if url.find('https://upload.wikimedia.org/wikipedia/en/') != 0:
