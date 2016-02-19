@@ -24,16 +24,6 @@ def crossorigin(f):
     return decorated_function
 
 
-def displayerror(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        try:
-            return f(*args, **kwargs)
-        except Exception as e:
-            return Response(str(e))
-    return decorated_function
-
-
 cal = calverter.Calverter()
 months = {
     "فروردین": 1,
@@ -60,12 +50,12 @@ def parsedate(date):
     return '%d-%d-%d' % greg + ' %s:%s' % (m.group(4), m.group(5))
 
 app = Flask(__name__)
+app.config['DEBUG'] = True
 Compress(app)
 
 
 @app.route('/uploadhelper-ir/gallery/<path:url>')
 @crossorigin
-@displayerror
 def gallery(url):
     if re.match(r'^http://(www\.)?tasnimnews\.com/', url) is None:
         raise Exception('Not supported link')
@@ -92,7 +82,6 @@ def gallery(url):
 
 @app.route('/uploadhelper-ir/crop/<path:url>')
 @crossorigin
-@displayerror
 def crop(url):
     format = request.args.get('format')
     if re.match(r'^http://newsmedia\.tasnimnews\.com/', url) is None:
@@ -117,7 +106,6 @@ def crop(url):
 
 @app.route('/uploadhelper-ir/enimage/<name>')
 @crossorigin
-@displayerror
 def enimage(name):
     url = requests.get('https://en.wikipedia.org/w/api.php', {
         'action': 'query',
@@ -126,7 +114,6 @@ def enimage(name):
         'iiprop': 'url',
         'format': 'json'
     }).json()['query']['pages'].popitem()[1]['imageinfo'][0]['url']
-
     req = requests.get(url)
     b64 = base64.b64encode(req.content).decode()
     return Response('data:%s;base64,%s' % (req.headers['Content-Type'], b64),
@@ -135,7 +122,6 @@ def enimage(name):
 
 @app.route('/uploadhelper-ir/health')
 @crossorigin
-@displayerror
 def health():
     return Response('{"health": true}', content_type='application/json')
 
