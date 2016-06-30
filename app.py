@@ -44,7 +44,7 @@ distance = ord('۰') - ord('0')
 def parsedate(date):
     date = re.sub(r'[۰-۹]', lambda x: chr(ord(x.group(0)) - distance), date)
     m = re.match(r'(\d\d?) ([^ ]*) (\d{4}) - (\d\d?):(\d\d?)', date)
-    jd = cal.jalali_to_jd(int(m.group(3)), months[m.group(2)], int(m.group(1)))
+    jd = cal.jalali_to_jd(int(m.group(3)), months[m.group(2).replace('ي', 'ی')], int(m.group(1)))
     greg = cal.jd_to_gregorian(jd)
     return '%d-%d-%d' % greg + ' %s:%s' % (m.group(4), m.group(5))
 
