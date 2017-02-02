@@ -55,7 +55,7 @@ Compress(app)
 @app.route('/uploadhelper-ir/gallery/<path:url>')
 @crossorigin
 def gallery(url):
-    if re.match(r'^http://(www\.)?tasnimnews\.com/', url) is None:
+    if re.match(r'^https?://(www\.)?tasnimnews\.com/', url) is None:
         raise Exception('Not supported link')
 
     soup = BeautifulSoup(requests.get(url).text, 'html.parser')
@@ -81,7 +81,7 @@ def gallery(url):
 @app.route('/uploadhelper-ir/crop/<path:url>')
 @crossorigin
 def crop(url):
-    if re.match(r'^http://newsmedia\.tasnimnews\.com/', url) is None:
+    if re.match(r'^https?://newsmedia\.tasnimnews\.com/', url) is None:
         raise Exception('Not supported link')
 
     img = Image.open(io.BytesIO(requests.get(url).content))
