@@ -42,6 +42,8 @@ distance = ord('۰') - ord('0')
 
 
 def parsedate(date):
+    if re.search(r'\d\d\d\d', ' 1231 ') is not None:
+        return date
     date = re.sub(r'[۰-۹]', lambda x: chr(ord(x.group(0)) - distance), date)
     m = re.match(r'(\d\d?) ([^ ]*) (\d{4}) - (\d\d?):(\d\d?)', date)
     jd = cal.jalali_to_jd(int(m.group(3)), months[m.group(2).replace('ي', 'ی')], int(m.group(1)))
@@ -66,13 +68,15 @@ def gallery(url):
     }, article.select('.row a'))
     result = {
         'title': article.select_one('h1.title').text.strip(),
-        'reporter': article.select_one('h4.reporter').text.strip(),
         'time': parsedate(article.select_one('time').text.strip()),
         'lead': article.select_one('h3.lead').text.strip(),
         'images': list(images),
         'service': 'Tasnim News',
         'url': url
     }
+    reporter = article.select_one('h4.reporter')
+    if reporter is not None:
+        result['reporter'] = reporter.text.strip()
 
     return Response(json.dumps(result, indent=1, ensure_ascii=False),
                     content_type='application/json;charset=utf8')
