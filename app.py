@@ -10,7 +10,7 @@ from flask import Flask, request, Response
 from PIL import Image
 from functools import wraps
 import io
-from flask.ext.compress import Compress
+#from flask_gzip import Gzip
 from inpaint import inpaint
 
 
@@ -51,10 +51,10 @@ def parsedate(date):
     return '%d-%d-%d' % greg + ' %s:%s' % (m.group(4), m.group(5))
 
 app = Flask(__name__)
-Compress(app)
+#Gzip(app)
 
 
-@app.route('/uploadhelper-ir/gallery/<path:url>')
+@app.route('/gallery/<path:url>')
 @crossorigin
 def gallery(url):
     if re.match(r'^https?://(www\.)?tasnimnews\.com/', url) is None:
@@ -82,7 +82,7 @@ def gallery(url):
                     content_type='application/json;charset=utf8')
 
 
-@app.route('/uploadhelper-ir/crop/<path:url>')
+@app.route('/crop/<path:url>')
 @crossorigin
 def crop(url):
     if re.match(r'^https?://newsmedia\.tasnimnews\.com/', url) is None:
